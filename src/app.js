@@ -26,8 +26,10 @@ import * as gastos from './screens/gastos.js';
 import * as reembolsos from './screens/reembolsos.js';
 import * as gasto from './screens/gasto.js';
 import * as tipos from './screens/tipos.js';
+import * as reserva from './screens/reserva.js';
+import * as rform from './screens/rform.js';
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = '0.3.0';
 
 const ICONOS = {
   inicio: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
@@ -44,7 +46,7 @@ const RUTAS = [
   { modulo: reembolsos, label: 'Reembolsos' }
 ];
 // Pantallas internas (no están en el menú inferior).
-const TODAS = [...RUTAS.map((r) => r.modulo), gasto, tipos];
+const TODAS = [...RUTAS.map((r) => r.modulo), gasto, tipos, reserva, rform];
 
 const ERRORES = {
   'auth/invalid-credential': 'Correo o contraseña incorrectos.',

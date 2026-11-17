@@ -3,6 +3,7 @@ import { datos, listo } from '../data/store.js';
 import { LISTA as SOCIOS, nombreSocio } from '../socios.js';
 import { fechaCorta } from '../domain/fechas.js';
 import { suma } from '../domain/gastos.js';
+import { saldoFondo } from '../domain/fondo.js';
 import { marcarReembolsado, deshacerReembolso } from '../data/gastos.js';
 
 export const id = 'reembolsos';
@@ -56,7 +57,10 @@ export function montar(ctx) {
     const g = datos().gastos.find((x) => x.id === b.dataset.v);
     if (!g) return;
     if (acc === 'reembolsar') {
-      const ok = await confirmar('Reembolsar gasto', `Se marcará como reembolsado a ${nombreSocio(g.socio)}: "${g.descripcion}" por ${money(g.monto)}. Hazlo cuando ya le hayan entregado el dinero.`, 'Marcar como reembolsado');
+      const d = datos();
+      const saldo = saldoFondo({ saldoInicial: d.saldoInicial, pagos: d.pagos, gastos: d.gastos }).saldo;
+      const aviso = saldo < g.monto ? ` Ojo: el saldo del fondo (${saldo < 0 ? '−' : ''}${money(saldo)}) no alcanza para este reembolso. Puedes registrarlo igual.` : '';
+      const ok = await confirmar('Reembolsar gasto', `Se marcará como reembolsado a ${nombreSocio(g.socio)}: "${g.descripcion}" por ${money(g.monto)}. Hazlo cuando ya le hayan entregado el dinero.${aviso}`, 'Marcar como reembolsado');
       if (!ok) return;
       marcarReembolsado(g.id, ctx.user.email).catch((e) => { console.error(e); toast('No se pudo registrar el reembolso.'); });
       toast('Reembolso registrado');

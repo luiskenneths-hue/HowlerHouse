@@ -36,11 +36,36 @@ brand/                        ícono y splash (logo dorado)
 firestore.rules               reglas: solo entran los dos socios
 www/index.html                página base
 src/
-  app.js                      arranque, inicio de sesión y navegación
+  app.js                      arranque, inicio de sesión, rutas y navegación
   firebase.js · firebase-config.js
+  socios.js                   Luis y Donald con su identificador
   ui.js · styles.css          utilidades y tema negro y dorado
-  screens/                    inicio · calendario · reservas · gastos · reembolsos
+  data/                       store (lectura en vivo) y escritura: gastos, tipos, reservas, fondo
+  domain/                     cálculos puros: fechas, gastos y alertas, reservas, fondo, mensajes
+  screens/                    inicio · calendario · reservas · reserva · rform
+                              gastos · gasto · tipos · reembolsos
+tests/                        pruebas de la lógica
 ```
 
+## Pruebas de la lógica
+`node --experimental-default-type=module --test tests/*.test.mjs`
+
+## Datos en Firestore
+- `tiposGasto`: nombre, oculto, fijo, orden. Se crean solos la primera vez.
+- `gastos`: monto, descripcion, tipoId, fecha, mes ("2026-11"), fuente (FONDO | SOCIO), socio, reembolsable,
+  estadoReembolso (NO_APLICA | PENDIENTE | REEMBOLSADO), fechaReembolso, creadoPor.
+- `reservas`: huesped, telefono, personas, entrada y salida ("2026-11-21"), noches, tarifaNoche, total,
+  estado (CONSULTA | CON_ADELANTO | CONFIRMADA | CHECK_IN | FINALIZADA | CANCELADA), notas.
+- `pagos`: reservaId, monto, fecha, mes, metodo (EFECTIVO | SINPE | TRANSFERENCIA),
+  tipo (COMPLETO | ADELANTO | ABONO | SALDO), nota.
+- `noches`: una por cada noche ocupada (id = la fecha). Es lo que evita reservar dos veces la misma fecha:
+  al crear o mover una reserva, una transacción comprueba que ninguna de esas noches exista.
+  Las noches de un bloqueo llevan tipo "BLOQUEO", bloqueoId y motivo.
+- `config/fondo`: saldoInicial.
+
+## Cómo se calcula el fondo
+`saldo = saldo inicial + cobrado en reservas − gastos pagados con el fondo − reembolsos entregados`.
+Los gastos pendientes de reembolso y los aportes definitivos de un socio no tocan el fondo.
+
 ## Pasos siguientes
-2. Gastos, tipos de gasto y reembolsos · 3. Inicio con fondo y gráfico mensual · 4. Calendario y reservas · 5. Extras (WhatsApp, avisos, reportes).
+5. Extras: tarifas por temporada, avisos de check-in y saldos, reportes en PDF o Excel.

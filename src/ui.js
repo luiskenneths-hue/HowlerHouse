@@ -1,8 +1,7 @@
 // Utilidades de interfaz compartidas por todas las pantallas.
 export const $ = (s) => document.querySelector(s);
 export const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-export const money = (n) => '₡ ' + String(Math.round(Math.abs(Number(n)) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-export const miles = (digitos) => String(digitos ?? '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+export { money, miles } from './domain/formato.js';
 
 export const ICONO_MAS = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 export const ICONO_ATRAS = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>';

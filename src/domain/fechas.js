@@ -29,3 +29,22 @@ export function deInputFecha(s) {
 
 export const fechaCorta = (d) => `${d.getDate()} ${MESES_CORTOS[d.getMonth()].toLowerCase()}`;
 export const fechaLarga = (d) => `${d.getDate()} ${MESES_CORTOS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
+
+export const DIAS_CORTOS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+export const DIAS_LARGOS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+/** "sáb 21 nov 2026" */
+export const fechaConDia = (d) => `${DIAS_CORTOS[d.getDay()]} ${d.getDate()} ${MESES_CORTOS[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
+/** Suma días a una fecha "yyyy-mm-dd". */
+export function sumarDias(key, n) {
+  const d = deInputFecha(key);
+  return aInputFecha(new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, 12));
+}
+
+/** "21 – 24 nov"  ·  "28 nov – 1 dic" */
+export function rangoCorto(entrada, salida) {
+  const a = deInputFecha(entrada);
+  const b = deInputFecha(salida);
+  if (!a || !b) return '';
+  if (a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear()) return `${a.getDate()} – ${b.getDate()} ${MESES_CORTOS[b.getMonth()].toLowerCase()}`;
+  return `${fechaCorta(a)} – ${fechaCorta(b)}`;
+}
