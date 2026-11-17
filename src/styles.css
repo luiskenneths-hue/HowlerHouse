@@ -83,3 +83,112 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding: calc(var(--sat) + 24px
 .panel-head h2 { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 18px; letter-spacing: .04em; }
 #toast { position: fixed; left: 20px; right: 20px; bottom: calc(var(--sab) + 90px); z-index: 30; background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 14px; padding: 12px 16px; font-size: 14px; text-align: center; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .2s, transform .2s; }
 #toast.on { opacity: 1; transform: none; }
+
+/* ======================= Paso 2: gastos, tipos y reembolsos ======================= */
+.add-btn { width: 44px; height: 44px; border-radius: 22px; background: var(--gold); color: #111113; display: flex; align-items: center; justify-content: center; }
+.btn-link { display: flex; align-items: center; justify-content: center; }
+.sheet-text { font-size: 14px; line-height: 1.5; color: var(--text); }
+.vacio { padding: 24px 12px; text-align: center; font-size: 13px; color: var(--muted); }
+.nota-pie { text-align: center; padding-bottom: 8px; }
+
+/* Selectores */
+.bloque { display: flex; flex-direction: column; gap: 6px; flex: none; }
+.etiqueta { font-size: 11px; color: var(--muted); letter-spacing: .08em; }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chips.wrap { flex-wrap: wrap; overflow: visible; }
+.chip { flex: none; min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid var(--line-2); background: transparent; color: var(--text); font-size: 13px; font-weight: 600; }
+.chip.on { background: var(--gold); border-color: var(--gold); color: #111113; }
+.seg { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 4px; flex: none; }
+.seg button { flex: 1; min-width: 0; min-height: 44px; border-radius: 12px; border: none; background: transparent; color: var(--text); font-size: 14px; font-weight: 600; }
+.seg button.on { background: var(--gold); color: #111113; }
+.fuentes { display: flex; gap: 6px; }
+.fuente { flex: 1; min-width: 0; min-height: 52px; border-radius: 14px; border: 1px solid var(--line-2); background: transparent; color: var(--text); padding: 4px 2px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.fuente span:first-child { font-size: 12px; font-weight: 600; }
+.fuente span:last-child { font-family: 'Exo 2', sans-serif; font-size: 12px; font-weight: 600; }
+.fuente.on { background: var(--gold); border-color: var(--gold); color: #111113; }
+
+/* Gráfico y resumen */
+.resumen { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 6px; flex: none; }
+.resumen-top { display: flex; flex-direction: column; gap: 2px; }
+.resumen-top .t { font-size: 12px; color: var(--muted); letter-spacing: .05em; }
+.resumen-top .n { font-size: 12px; font-weight: 600; }
+.n.sube { color: var(--orange); } .n.baja { color: var(--blue); } .n.plano { color: var(--muted); }
+.resumen-total { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 26px; color: var(--gold-hi); }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 128px; border-bottom: 1px solid var(--line); }
+.bar-col { flex: 1; min-width: 0; height: 128px; border: none; background: transparent; padding: 0 0 6px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; color: var(--muted); }
+.bar-col .bar { display: block; width: 70%; border-radius: 8px 8px 3px 3px; background: var(--line-2); }
+.bar-col .bar-val { font-size: 11px; font-weight: 600; }
+.bar-col .bar-lbl { font-size: 12px; font-weight: 600; }
+.bar-col.on { color: var(--text); }
+.bar-col.on .bar { background: var(--gold); }
+.bar-col.on .bar-val { color: var(--gold-hi); }
+.alerta { margin: 4px 0 6px; border: 1px solid; border-radius: 12px; padding: 8px 10px; font-size: 12px; line-height: 1.4; font-weight: 600; }
+.alerta.sale { color: var(--orange); border-color: var(--orange); }
+.alerta.ok { color: var(--blue); border-color: var(--blue); }
+.alerta.neutro { color: var(--muted); border-color: var(--line-2); font-weight: 500; }
+
+/* Lista de gastos */
+.lista { display: flex; flex-direction: column; gap: 8px; }
+.mes-titulo { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 2px 0; }
+.mes-titulo span:first-child { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .04em; }
+.g-row { min-height: 60px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+.g-row .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.g-row .desc { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.g-row .meta { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 12px; color: var(--muted); }
+.g-row .monto { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 16px; white-space: nowrap; }
+.pill { font-size: 11px; font-weight: 600; border: 1px solid; border-radius: 8px; padding: 1px 7px; }
+.pill.fondo { color: var(--blue); } .pill.pend { color: var(--orange); } .pill.hecho { color: var(--blue); } .pill.aporte { color: var(--gold-hi); }
+
+/* Formulario */
+.form { display: flex; flex-direction: column; gap: 16px; }
+.monto-box { display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 0 16px; height: 60px; }
+.monto-box:focus-within { border-color: var(--gold); }
+.monto-box .moneda { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 26px; color: var(--gold); }
+.monto-box input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 28px; }
+.field input[type="date"] { color-scheme: dark; }
+.switch-row { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; min-height: 56px; }
+.switch-row .txt { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.switch-row .txt strong { font-size: 14px; }
+.switch { width: 52px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; }
+.switch .pista { width: 48px; height: 28px; border-radius: 14px; background: var(--line-2); position: relative; display: block; }
+.switch .perilla { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 11px; background: var(--text); display: block; transition: left .15s; }
+.switch[aria-checked="true"] .pista { background: var(--gold); }
+.switch[aria-checked="true"] .perilla { left: 23px; background: #111113; }
+.aviso { background: var(--surface); border-radius: 14px; padding: 12px 14px; font-size: 13px; line-height: 1.45; display: flex; gap: 10px; }
+.aviso.sale { border: 1px solid var(--orange); color: var(--orange); }
+.btn-peligro { min-height: 54px; border-radius: 14px; border: 1px solid var(--orange); background: transparent; color: var(--orange); font-weight: 600; font-size: 15px; width: 100%; }
+.enlace { min-height: 44px; display: inline-flex; align-items: center; font-size: 13px; color: var(--gold); font-weight: 500; }
+.fila-etiqueta { display: flex; align-items: center; justify-content: space-between; }
+
+/* Tipos de gasto */
+.tipo-row { min-height: 64px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px 8px 14px; display: flex; align-items: center; gap: 8px; }
+.tipo-row.oculto { background: transparent; border-style: dashed; border-color: var(--line-2); }
+.tipo-row .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.tipo-row .info strong { font-size: 15px; }
+.tipo-row.oculto .info strong { color: var(--muted); }
+.tipo-row input { flex: 1; min-width: 0; height: 44px; background: var(--surface-2); border: 1px solid var(--gold); border-radius: 12px; padding: 0 12px; color: var(--text); font-size: 15px; outline: none; }
+.mini { min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line-2); background: transparent; color: var(--text); font-size: 13px; font-weight: 500; }
+.mini.oro { border-color: var(--gold); color: var(--gold-hi); font-weight: 600; }
+.mini.lleno { background: var(--gold); border-color: var(--gold); color: #111113; font-weight: 600; }
+.mini.suave { border: none; color: var(--muted); }
+.icon-sq { width: 44px; height: 44px; border-radius: 12px; border: none; background: var(--surface-2); color: var(--gold-hi); display: flex; align-items: center; justify-content: center; }
+.fijo { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); padding-right: 6px; }
+.agregar-fila { display: flex; gap: 8px; }
+.agregar-fila input { flex: 1; min-width: 0; height: 48px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 0 14px; color: var(--text); font-size: 15px; outline: none; }
+.agregar-fila input:focus { border-color: var(--gold); }
+.agregar-fila .btn { width: auto; min-height: 48px; padding: 0 18px; font-size: 14px; }
+
+/* Reembolsos */
+.dos { display: flex; gap: 12px; }
+.mini-card { flex: 1; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.mini-card .v { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 22px; color: var(--orange); }
+.r-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.r-top { display: flex; align-items: flex-start; gap: 12px; }
+.r-top .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.r-top .desc { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.r-top .monto { font-family: 'Exo 2', sans-serif; font-weight: 600; font-size: 17px; white-space: nowrap; }
+.r-bot { display: flex; align-items: center; gap: 12px; }
+.r-bot .estado { flex: 1; font-size: 12px; font-weight: 600; }
+.estado.pend { color: var(--orange); } .estado.hecho { color: var(--blue); }
+.bottom[hidden] { display: none; }

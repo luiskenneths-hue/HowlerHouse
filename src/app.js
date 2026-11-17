@@ -15,7 +15,8 @@ import '@fontsource/inter/latin-ext-600.css';
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import { App as CapApp } from '@capacitor/app';
 import { auth, iniciarFirebase, firebaseListo } from './firebase.js';
-import { SOCIOS } from './firebase-config.js';
+import { socioPorEmail } from './socios.js';
+import { iniciarStore, detenerStore, suscribir } from './data/store.js';
 import { $, esc, toast, openSheet, closeSheet, sheetAbierta } from './ui.js';
 import logoUrl from './logo-oro.png';
 import * as inicio from './screens/inicio.js';
@@ -23,8 +24,10 @@ import * as calendario from './screens/calendario.js';
 import * as reservas from './screens/reservas.js';
 import * as gastos from './screens/gastos.js';
 import * as reembolsos from './screens/reembolsos.js';
+import * as gasto from './screens/gasto.js';
+import * as tipos from './screens/tipos.js';
 
-const APP_VERSION = '0.1.0';
+const APP_VERSION = '0.2.0';
 
 const ICONOS = {
   inicio: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
@@ -40,6 +43,8 @@ const RUTAS = [
   { modulo: gastos, label: 'Gastos' },
   { modulo: reembolsos, label: 'Reembolsos' }
 ];
+// Pantallas internas (no están en el menú inferior).
+const TODAS = [...RUTAS.map((r) => r.modulo), gasto, tipos];
 
 const ERRORES = {
   'auth/invalid-credential': 'Correo o contraseña incorrectos.',
@@ -54,14 +59,21 @@ const ERRORES = {
 const S = { user: null, socio: null, error: '' };
 const app = $('#app');
 
-const socioDe = (email) => {
-  const e = String(email || '').trim().toLowerCase();
-  return SOCIOS.find((s) => s.email.toLowerCase() === e) || null;
-};
-const rutaActual = () => {
-  const id = (location.hash.match(/^#\/(\w+)/) || [])[1];
-  return RUTAS.find((r) => r.modulo.id === id) || RUTAS[0];
-};
+const socioDe = socioPorEmail;
+
+// Ruta actual: #/gastos  ·  #/gasto  ·  #/gasto/ID
+function rutaActual() {
+  const m = location.hash.match(/^#\/(\w+)(?:\/([\w-]+))?/);
+  const modulo = TODAS.find((x) => x.id === (m && m[1])) || inicio;
+  return { modulo, param: (m && m[2]) || null };
+}
+let rutaPrevia = null;
+
+function volver() {
+  const { modulo } = rutaActual();
+  if (history.length > 1) history.back();
+  else location.hash = `#/${modulo.padre || 'inicio'}`;
+}
 
 /* ---------- Pantallas de acceso ---------- */
 function renderCargando() {
@@ -108,7 +120,7 @@ function renderLogin(error = '') {
 
 /* ---------- Estructura principal ---------- */
 function ctx() {
-  return { user: S.user, socio: S.socio, abrirPerfil };
+  return { user: S.user, socio: S.socio, param: rutaActual().param, abrirPerfil, repintar: pintarRuta, volver };
 }
 
 function renderShell() {
@@ -120,15 +132,21 @@ function renderShell() {
   pintarRuta();
 }
 
-function pintarRuta() {
+function pintarRuta(conservarScroll = false) {
   if (!S.user) return;
-  const r = rutaActual();
+  const actual = rutaActual();
+  // Al cambiar de pantalla, la anterior limpia su formulario.
+  if (rutaPrevia && (rutaPrevia.modulo !== actual.modulo || rutaPrevia.param !== actual.param)) rutaPrevia.modulo.alSalir?.();
+  rutaPrevia = actual;
   const main = $('#main');
-  main.innerHTML = r.modulo.vista(ctx());
-  main.scrollTop = 0;
-  r.modulo.montar?.(ctx());
+  const y = main.scrollTop;
+  main.innerHTML = actual.modulo.vista(ctx());
+  main.scrollTop = conservarScroll === true ? y : 0;
+  actual.modulo.montar?.(ctx());
+  const tabActiva = actual.modulo.tab || actual.modulo.id;
+  $('.bottom').hidden = !!actual.modulo.sinNav;
   document.querySelectorAll('.tab').forEach((t) => {
-    const on = t.dataset.ruta === r.modulo.id;
+    const on = t.dataset.ruta === tabActiva;
     t.classList.toggle('on', on);
     if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
   });
@@ -153,13 +171,22 @@ function render() {
 }
 
 /* ---------- Arranque ---------- */
-window.addEventListener('hashchange', pintarRuta);
+window.addEventListener('hashchange', () => pintarRuta());
+
+// Cuando llegan datos nuevos de Firestore, se repinta la pantalla que los muestra.
+suscribir((tipo) => {
+  if (!S.user) return;
+  if (tipo === 'listo' || tipo === 'error' || rutaActual().modulo.reactivo) pintarRuta(true);
+});
 
 try {
   // Botón "atrás" de Android: cierra la hoja, vuelve a Inicio o sale de la app.
   CapApp.addListener('backButton', () => {
     if (sheetAbierta()) return closeSheet();
-    if (S.user && rutaActual().modulo.id !== 'inicio') { location.hash = '#/inicio'; return; }
+    if (!S.user) return CapApp.exitApp();
+    const { modulo } = rutaActual();
+    if (modulo.padre) { volver(); return; }
+    if (modulo.id !== 'inicio') { location.hash = '#/inicio'; return; }
     CapApp.exitApp();
   });
 } catch (e) { /* en el navegador no existe */ }
@@ -174,12 +201,16 @@ if (!firebaseListo()) {
       const socio = socioDe(u.email);
       if (!socio) {
         S.error = 'Esta cuenta no tiene acceso a Howler House.';
+        detenerStore();
         S.user = null; S.socio = null;
         signOut(auth);
         return;
       }
+      if (!S.user || S.user.uid !== u.uid) iniciarStore();
       S.user = u; S.socio = socio; S.error = '';
     } else {
+      detenerStore();
+      rutaPrevia = null;
       S.user = null; S.socio = null;
     }
     render();

@@ -28,8 +28,8 @@ export function vista(ctx) {
 
     <section class="card soon">
       <h2>Hola, ${esc(ctx.socio.nombre)}</h2>
-      <p>La base de la app está lista: sesión, navegación y conexión con Firebase. Los datos reales aparecerán cuando se construyan los gastos y las reservas.</p>
-      <span class="tag">Paso 1 completo</span>
+      <p>Ya puedes registrar gastos, administrar los tipos de gasto y llevar los reembolsos desde las pestañas Gastos y Reembolsos. El fondo y las reservas llegan en los siguientes pasos.</p>
+      <span class="tag">Paso 2 completo</span>
     </section>`;
 }
 
