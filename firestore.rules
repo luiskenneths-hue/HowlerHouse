@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Solo entran los dos socios. Cambia los correos por los reales
+    // (deben ser los mismos de src/firebase-config.js).
+    function esSocio() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() in [
+          'correo.de.luis@gmail.com',
+          'correo.de.donald@gmail.com'
+        ];
+    }
+
+    match /reservas/{id}   { allow read, write: if esSocio(); }
+    match /noches/{id}     { allow read, write: if esSocio(); }
+    match /pagos/{id}      { allow read, write: if esSocio(); }
+    match /gastos/{id}     { allow read, write: if esSocio(); }
+    match /tiposGasto/{id} { allow read, write: if esSocio(); }
+    match /aportes/{id}    { allow read, write: if esSocio(); }
+    match /config/{id}     { allow read, write: if esSocio(); }
+
+    // Todo lo demás queda cerrado.
+  }
+}
